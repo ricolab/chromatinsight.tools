@@ -3,7 +3,7 @@
 \docType{package}
 \name{chromatinsight.tools}
 \alias{chromatinsight.tools}
-\title{chromatinsight.tools v1.2: A set of methods for R
+\title{chromatinsight.tools v1.3: A set of methods for R
 used in tandem with Chromatinsight}
 \description{
 Author: Marco Trevisan-Herraz, PhD

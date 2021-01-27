@@ -1,4 +1,4 @@
-#' chromatinsight.tools v1.2: A set of methods for R
+#' chromatinsight.tools v1.3: A set of methods for R
 #' used in tandem with Chromatinsight
 #'
 #' Author: Marco Trevisan-Herraz, PhD
