@@ -9,8 +9,16 @@
 # Computational Epigenomics Laboratory
 # Newcastle University, UK
 # 2019-2021
-
+#
 # requires ggplot2, biomaRt
+#
+# Install:
+# from GitHub, using devtools:
+# devtools::github_install("chromatinsight.tools")
+# If devtools is not installed, then
+# install.packages("devtools")
+# You might need first:
+# sudo apt-get install libgit2-dev
 
 # methods
 
@@ -19,6 +27,7 @@
 #' Calls drawpile with UCSC Genome Browser coordinate system.
 #' (such as chrX:10,000-25,000)
 #' (See drawpile for more details).
+#' @export
 drawpilegb = function(datafem, datamal, coord = "", plusminus = 1000, sex = "both", histmod = "ac", window = 200, useDensity = TRUE, opacity = 0.5, highlight = "", label = "") {
 
 	# note that datafem and datamal can only be part of a specific chromosome
@@ -70,6 +79,7 @@ splitCoords = function(coords = "") {
 #' set of files, dividing by the number of files.
 #' So it gives the ratio of samples having a "one" at a specific position
 #' ie, the ratio of samples being H3K27ac or H3K4me1 at a ChromHMM bin.
+#' @export
 #' @examples
 #' pileup(prefix = "mono*S*mal", direc = "/data/", chrom = "chr10")
 #' Will merge data from files (within /data folder)
@@ -119,6 +129,7 @@ pileup = function(prefix = "", direc = "", chrom = ""){
 #' One group is blue, the other is red, when they overlap it's purple.
 #' To use UCSC Genome Browser coordinate system (such as chrX:10,000-25,000)
 #' see drawpilegb.
+#' @export
 drawpile = function(datafem, datamal, start = 0, plus = 1000, sex = "both", histmod = "ac", chrom = ""){
 	
 	lineWidth = 1
@@ -155,6 +166,7 @@ drawpile = function(datafem, datamal, start = 0, plus = 1000, sex = "both", hist
 
 #' You give it the output of two pileup function
 #' and it shows the graph comparing them.
+#' @export
 densitypile = function(datafem, datamal,
                     start = 0, plus = 1000,
                     highstart = 0, highplus = 0,
@@ -205,9 +217,10 @@ densitypile = function(datafem, datamal,
 
 #----------------------------------------------------------------------
 
-#' Loads the output text files of Chromatinsight (currently python only),
+#' Loads the output text files of Chromatinsight (currently Python only),
 #' Using as output the median of the number of trials porformed (in the
 #' totRandomStates variable).
+#' @export
 getRegionData = function(myPath = "", histmod = "ac", prefix = "prefix", suffix = "", totRandomStates = 11) {
 	
 	globalOutput = vector()
@@ -245,6 +258,7 @@ getRegionData = function(myPath = "", histmod = "ac", prefix = "prefix", suffix 
 
 #' Merges the information from Biomart and the data from Chromatinsight,
 #' retrieved using getRegionData.
+#' @export
 fillTableWithGeneTypes = function(data, BioMartChr, SDGeneTypes) {
 geneTypeColumns = data.frame()
 data$comments = as.character(data$comments)
