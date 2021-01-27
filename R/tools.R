@@ -1,5 +1,5 @@
 #################################
-### Chromatinsight tools v1.1 ###
+### Chromatinsight tools v1.2 ###
 #################################
 #
 # A set of methods for R
