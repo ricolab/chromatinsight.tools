@@ -1,5 +1,5 @@
 #################################
-### Chromatinsight tools v1.2 ###
+### Chromatinsight tools v1.3 ###
 #################################
 #
 # A set of methods for R
@@ -145,17 +145,17 @@ drawpile = function(datafem, datamal, start = 0, plus = 1000, sex = "both", hist
 	datafempart = datafem[start:end,]
 	datamalpart = datamal[start:end,]
 	
-	myPlot <- ggplot(aes(x = as.numeric(row.names(datafempart)), y = 0), data = datafempart) + geom_line() + ylim(0, 1) + scale_colour_manual(values = c("males, H3K27ac" = "blue", "females, H3K27ac" = "red",  "females, H3K4me1" = "purple", "males, H3K2me1" = "forest green"))
-	myPlot <- myPlot + labs(title = myTitle) + xlab("bin in ChromHMM (1 bin = 200b)") + ylab("probability of histone modification")
+	myPlot <- ggplot2::ggplot(aes(x = as.numeric(row.names(datafempart)), y = 0), data = datafempart) + gglot2::geom_line() + ggplot2::ylim(0, 1) + ggplot2::scale_colour_manual(values = c("males, H3K27ac" = "blue", "females, H3K27ac" = "red",  "females, H3K4me1" = "purple", "males, H3K2me1" = "forest green"))
+	myPlot <- myPlot + ggplot2::labs(title = myTitle) + ggplot2::xlab("bin in ChromHMM (1 bin = 200b)") + ggplot2::ylab("probability of histone modification")
 	
 	if (histmod == "ac" | histmod == "both"){
-		if (sex == "fem" | sex == "both") myPlot <- myPlot + geom_line(aes(y = H3K27ac, color = 'females, H3K27ac'), data = datafempart, size = lineWidth)
-		if (sex == "mal" | sex == "both") myPlot <- myPlot + geom_line(aes(y = H3K27ac, color = 'males, H3K27ac'), data = datamalpart, size = lineWidth)
+		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_line(aes(y = H3K27ac, color = 'females, H3K27ac'), data = datafempart, size = lineWidth)
+		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_line(aes(y = H3K27ac, color = 'males, H3K27ac'), data = datamalpart, size = lineWidth)
 		}
 	
 	if (histmod == "me1" | histmod == "both"){
-		if (sex == "fem" | sex == "both") myPlot <- myPlot + geom_line(aes(y = H3K4me1, color = 'females, H3K4me1'), data = datafempart, size = lineWidth)
-		if (sex == "mal" | sex == "both") myPlot <- myPlot + geom_line(aes(y = H3K4me1, color = 'males, H3K2me1'), data = datamalpart, size = lineWidth)
+		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_line(aes(y = H3K4me1, color = 'females, H3K4me1'), data = datafempart, size = lineWidth)
+		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_line(aes(y = H3K4me1, color = 'males, H3K2me1'), data = datamalpart, size = lineWidth)
 		}
 		
 	myPlot
@@ -189,26 +189,26 @@ densitypile = function(datafem, datamal,
 	datafempart = datafem[start:end,]
 	datamalpart = datamal[start:end,]
 	
-	myPlot <- ggplot(aes(x = as.numeric(row.names(datafempart)) * binSize, y = 0), data = datafempart) + geom_line() + ylim(0, 1) + scale_fill_manual(values = c("males, H3K27ac" = "#0000ff", "females, H3K27ac" = "#ff0000",  "females, H3K4me1" = "purple", "males, H3K2me1" = "forest green"))
-	myPlot <- myPlot + labs(title = myTitle) + xlab("bins in ChromHMM (1 bin = 200b)") + ylab("probability of histone modification")
-    myPlot <- myPlot + theme(panel.background = element_rect(fill="white", color = "grey50", size=2), panel.grid.major = element_line(color = "grey",size=(0.2)))
+	myPlot <- ggplot2::ggplot(aes(x = as.numeric(row.names(datafempart)) * binSize, y = 0), data = datafempart) + ggplot2::geom_line() + ggplot2::ylim(0, 1) + ggplot2::scale_fill_manual(values = c("males, H3K27ac" = "#0000ff", "females, H3K27ac" = "#ff0000",  "females, H3K4me1" = "purple", "males, H3K2me1" = "forest green"))
+	myPlot <- myPlot + ggplot2::labs(title = myTitle) + ggplot2::xlab("bins in ChromHMM (1 bin = 200b)") + ylab("probability of histone modification")
+    myPlot <- myPlot + ggplot2::theme(panel.background = element_rect(fill="white", color = "grey50", size=2), panel.grid.major = element_line(color = "grey",size=(0.2)))
     
     if (highstart > 0 & highplus > 0) {
-        myPlot <- myPlot + geom_rect(aes(xmin = highstart * binSize, xmax = (highstart + highplus) * binSize, ymin = 0, ymax = 1), fill = "#ffff00", alpha = 0.005)
+        myPlot <- myPlot + ggplot2::geom_rect(aes(xmin = highstart * binSize, xmax = (highstart + highplus) * binSize, ymin = 0, ymax = 1), fill = "#ffff00", alpha = 0.005)
         }
 	
 	if (histmod == "ac" | histmod == "both"){
-		if (sex == "fem" | sex == "both") myPlot <- myPlot + geom_density(aes(y = H3K27ac, fill = 'females, H3K27ac'), data = datafempart, size = lineWidth, stat = 'identity', alpha = opacity)
-		if (sex == "mal" | sex == "both") myPlot <- myPlot + geom_density(aes(y = H3K27ac, fill = 'males, H3K27ac'), data = datamalpart, size = lineWidth, stat = 'identity', alpha = opacity)
+		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(aes(y = H3K27ac, fill = 'females, H3K27ac'), data = datafempart, size = lineWidth, stat = 'identity', alpha = opacity)
+		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(aes(y = H3K27ac, fill = 'males, H3K27ac'), data = datamalpart, size = lineWidth, stat = 'identity', alpha = opacity)
 		}
 	
 	if (histmod == "me1" | histmod == "both"){
-		if (sex == "fem" | sex == "both") myPlot <- myPlot + geom_density(aes(y = H3K4me1, color = 'females, H3K4me1'), data = datafempart, size = lineWidth)
-		if (sex == "mal" | sex == "both") myPlot <- myPlot + geom_density(aes(y = H3K4me1, color = 'males, H3K2me1'), data = datamalpart, size = lineWidth)
+		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(aes(y = H3K4me1, color = 'females, H3K4me1'), data = datafempart, size = lineWidth)
+		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(aes(y = H3K4me1, color = 'males, H3K2me1'), data = datamalpart, size = lineWidth)
 		}
     
     if (nchar(label) > 0) {
-        myPlot <- myPlot + annotate("text", x = start * binSize, y = 0.9, label = label, family = "Ubuntu", size = 10, hjust = 0)
+        myPlot <- myPlot + ggplot2::annotate("text", x = start * binSize, y = 0.9, label = label, family = "Ubuntu", size = 10, hjust = 0)
         }
     
 	myPlot
