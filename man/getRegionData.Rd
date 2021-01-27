@@ -2,7 +2,7 @@
 % Please edit documentation in R/tools.R
 \name{getRegionData}
 \alias{getRegionData}
-\title{Loads the output text files of Chromatinsight (currently python only),
+\title{Loads the output text files of Chromatinsight (currently Python only),
 Using as output the median of the number of trials porformed (in the
 totRandomStates variable).}
 \usage{
@@ -15,7 +15,7 @@ getRegionData(
 )
 }
 \description{
-Loads the output text files of Chromatinsight (currently python only),
+Loads the output text files of Chromatinsight (currently Python only),
 Using as output the median of the number of trials porformed (in the
 totRandomStates variable).
 }
