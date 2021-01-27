@@ -1,5 +1,5 @@
 #################################
-### Chromatinsight tools v1.4 ###
+### Chromatinsight tools v1.5 ###
 #################################
 #
 # A set of methods for R
@@ -190,7 +190,7 @@ densitypile = function(datafem, datamal,
 	datamalpart = datamal[start:end,]
 	
 	myPlot <- ggplot2::ggplot(ggplot2::aes(x = as.numeric(row.names(datafempart)) * binSize, y = 0), data = datafempart) + ggplot2::geom_line() + ggplot2::ylim(0, 1) + ggplot2::scale_fill_manual(values = c("males, H3K27ac" = "#0000ff", "females, H3K27ac" = "#ff0000",  "females, H3K4me1" = "purple", "males, H3K2me1" = "forest green"))
-	myPlot <- myPlot + ggplot2::labs(title = myTitle) + ggplot2::xlab("bins in ChromHMM (1 bin = 200b)") + ylab("probability of histone modification")
+	myPlot <- myPlot + ggplot2::labs(title = myTitle) + ggplot2::xlab("bins in ChromHMM (1 bin = 200b)") + ggplot2::ylab("probability of histone modification")
     myPlot <- myPlot + ggplot2::theme(panel.background = element_rect(fill="white", color = "grey50", size=2), panel.grid.major = element_line(color = "grey",size=(0.2)))
     
     if (highstart > 0 & highplus > 0) {
