@@ -3,13 +3,16 @@
 \docType{package}
 \name{chromatinsight.tools}
 \alias{chromatinsight.tools}
-\title{chromatinsight.tools v1.3: A set of methods for R
-used in tandem with Chromatinsight}
+\title{chromatinsight.tools v1.6: a set of methods for R
+used in tandem with Chromatinsight.}
 \description{
 Author: Marco Trevisan-Herraz, PhD
 Computational Epigenomics Laboratory
 Newcastle University, UK
 2019-2021
+}
+\details{
+Requires: ggplot2.
 }
 \section{Functions}{
 

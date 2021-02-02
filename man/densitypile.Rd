@@ -3,7 +3,13 @@
 \name{densitypile}
 \alias{densitypile}
 \title{You give it the output of two pileup function
-and it shows the graph comparing them.}
+and it shows the graph comparing them.
+For H3K27ac the first group is red, the second is blue,
+when they overlap it's purple.
+For H3K4me1 the first group is pink, the second is forest green,
+when they overlap it's grey.
+To use UCSC Genome Browser coordinate format (such as chrX:10,000-25,000)
+see drawpilegb.}
 \usage{
 densitypile(
   datafem,
@@ -22,4 +28,10 @@ densitypile(
 \description{
 You give it the output of two pileup function
 and it shows the graph comparing them.
+For H3K27ac the first group is red, the second is blue,
+when they overlap it's purple.
+For H3K4me1 the first group is pink, the second is forest green,
+when they overlap it's grey.
+To use UCSC Genome Browser coordinate format (such as chrX:10,000-25,000)
+see drawpilegb.
 }

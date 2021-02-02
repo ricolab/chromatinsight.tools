@@ -2,9 +2,9 @@
 % Please edit documentation in R/tools.R
 \name{drawpilegb}
 \alias{drawpilegb}
-\title{Calls drawpile with UCSC Genome Browser coordinate system.
+\title{Calls drawpile with UCSC Genome Browser coordinate format.
 (such as chrX:10,000-25,000)
-(See drawpile for more details).}
+(See drawpile and densitypile for more details).}
 \usage{
 drawpilegb(
   datafem,
@@ -21,7 +21,7 @@ drawpilegb(
 )
 }
 \description{
-Calls drawpile with UCSC Genome Browser coordinate system.
+Calls drawpile with UCSC Genome Browser coordinate format.
 (such as chrX:10,000-25,000)
-(See drawpile for more details).
+(See drawpile and densitypile for more details).
 }

@@ -1,5 +1,5 @@
 #################################
-### Chromatinsight tools v1.6 ###
+### Chromatinsight tools v1.7 ###
 #################################
 #
 # A set of methods for R
@@ -24,9 +24,9 @@
 
 #----------------------------------------------------------------------
 
-#' Calls drawpile with UCSC Genome Browser coordinate system.
+#' Calls drawpile with UCSC Genome Browser coordinate format.
 #' (such as chrX:10,000-25,000)
-#' (See drawpile for more details).
+#' (See drawpile and densitypile for more details).
 #' @export
 drawpilegb = function(datafem, datamal, coord = "", plusminus = 1000, sex = "both", histmod = "ac", window = 200, useDensity = TRUE, opacity = 0.5, highlight = "", label = "") {
 
@@ -93,6 +93,11 @@ pileup = function(prefix = "", direc = "", chrom = ""){
 	if (nchar(myChromosome) < 4) myChromosome = paste0("chr", myChromosome)
 	
 	myDirec = direc
+	if (nchar(myDirec) > 0) {
+		if (substr(myDirec, nchar(myDirec), nchar(myDirec)) != "/") {
+			myDirec = paste0(myDirec, "/")
+			}
+		}
 	myFilePath = paste0(myDirec, "*", prefix, "*", myChromosome, "_binary.txt")
 	
 	myFiles = Sys.glob(myFilePath)
@@ -126,8 +131,9 @@ pileup = function(prefix = "", direc = "", chrom = ""){
 #' You give it the frequency of a histone mark at every ChromHMM bin,
 #' ie, the output of two pileup functions (see pileup).
 #' and draws the graph comparing them.
-#' One group is blue, the other is red, when they overlap it's purple.
-#' To use UCSC Genome Browser coordinate system (such as chrX:10,000-25,000)
+#' For H3K27ac the first group is red, the second is blue,
+#' For H3K4me1 the first group is pink, the second is forest green,
+#' To use UCSC Genome Browser coordinate format (such as chrX:10,000-25,000)
 #' see drawpilegb.
 #' @export
 drawpile = function(datafem, datamal, start = 0, plus = 1000, sex = "both", histmod = "ac", chrom = ""){
@@ -145,7 +151,7 @@ drawpile = function(datafem, datamal, start = 0, plus = 1000, sex = "both", hist
 	datafempart = datafem[start:end,]
 	datamalpart = datamal[start:end,]
 	
-	myPlot <- ggplot2::ggplot(ggplot2::aes(x = as.numeric(row.names(datafempart)), y = 0), data = datafempart) + gglot2::geom_line() + ggplot2::ylim(0, 1) + ggplot2::scale_colour_manual(values = c("males, H3K27ac" = "blue", "females, H3K27ac" = "red",  "females, H3K4me1" = "purple", "males, H3K2me1" = "forest green"))
+	myPlot <- ggplot2::ggplot(ggplot2::aes(x = as.numeric(row.names(datafempart)), y = 0), data = datafempart) + ggplot2::geom_line() + ggplot2::ylim(0, 1) + ggplot2::scale_colour_manual(values = c("males, H3K27ac" = "blue", "females, H3K27ac" = "red",  "females, H3K4me1" = "purple", "males, H3K2me1" = "forest green"))
 	myPlot <- myPlot + ggplot2::labs(title = myTitle) + ggplot2::xlab("bin in ChromHMM (1 bin = 200b)") + ggplot2::ylab("probability of histone modification")
 	
 	if (histmod == "ac" | histmod == "both"){
@@ -166,6 +172,12 @@ drawpile = function(datafem, datamal, start = 0, plus = 1000, sex = "both", hist
 
 #' You give it the output of two pileup function
 #' and it shows the graph comparing them.
+#' For H3K27ac the first group is red, the second is blue,
+#' when they overlap it's purple.
+#' For H3K4me1 the first group is pink, the second is forest green,
+#' when they overlap it's grey.
+#' To use UCSC Genome Browser coordinate format (such as chrX:10,000-25,000)
+#' see drawpilegb.
 #' @export
 densitypile = function(datafem, datamal,
                     start = 0, plus = 1000,
@@ -197,14 +209,14 @@ densitypile = function(datafem, datamal,
         myPlot <- myPlot + ggplot2::geom_rect(ggplot2::aes(xmin = highstart * binSize, xmax = (highstart + highplus) * binSize, ymin = 0, ymax = 1), fill = "#ffff00", alpha = 0.005)
         }
 	
-	if (histmod == "ac" | histmod == "both"){
+	if (histmod == "ac" | histmod == "H3K27ac" | histmod == "both"){
 		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K27ac, fill = 'females, H3K27ac'), data = datafempart, size = lineWidth, stat = 'identity', alpha = opacity)
 		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K27ac, fill = 'males, H3K27ac'), data = datamalpart, size = lineWidth, stat = 'identity', alpha = opacity)
 		}
 	
-	if (histmod == "me1" | histmod == "both"){
-		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K4me1, color = 'females, H3K4me1'), data = datafempart, size = lineWidth)
-		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K4me1, color = 'males, H3K2me1'), data = datamalpart, size = lineWidth)
+	if (histmod == "me1" | histmod == "me" | histmod == "H3K4me1" | histmod == "both"){
+		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K4me1, fill = 'females, H3K4me1'), data = datafempart, size = lineWidth, stat = 'identity', alpha = opacity)
+		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K4me1, fill = 'males, H3K2me1'), data = datamalpart, size = lineWidth, stat = 'identity', alpha = opacity)
 		}
     
     if (nchar(label) > 0) {
