@@ -298,6 +298,32 @@ for (i in 1:nrow(data)) {
 
 #----------------------------------------------------------------------
 
+#' Displays the violin plots of the distributions in two analyses
+#' retrieved using getRegionData. Especially useful to compare random vs
+#' observed data.
+#' @export
+compareDistributions = function(regionData1, regionData2, label1 = "first", label2 = "second", yLabel = "data", graphTitle = "comparison") {
+
+	myFirst = as.data.frame(c(first = regionData1$disparity))
+	myFirst$id = label1
+	rownames(myFirst) = NULL
+	colnames(myFirst) = c("data", "id")
+
+	mySecond = as.data.frame(c(second = regionData2$disparity))
+	mySecond$id = label2
+	rownames(mySecond) = NULL
+	colnames(mySecond) = c("data", "id")
+
+	mydf = rbind(myFirst, mySecond)
+
+	vPlot_better = ggplot2::ggplot(mydf, ggplot2::aes(x = id, y = data, fill = id), ties = min) + ggplot2::geom_violin() + ggplot2::stat_summary(fun = median, geom = "point", shape = 20, size = 7, color = "red", fill = "red") + ggplot2::theme(axis.text = ggplot2::element_text(size = 14, face = "bold"), axis.title = ggplot2::element_text(size = 16, face = "bold"), plot.title = ggplot2::element_text(size = 20, face = "bold"), legend.position = "none") + ggplot2::ylab(yLabel) + ggplot2::coord_cartesian(ylim = c(0.3, 1)) + ggplot2::ggtitle(graphTitle)
+	
+	print(vPlot_better)
+	
+	}
+
+#----------------------------------------------------------------------
+
 #' Counts the gene types for each of the
 #' gene types dowloaded from Biomart.
 countGeneTypes = function(myGeneTypes, SDGeneTypes) {
