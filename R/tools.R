@@ -1,5 +1,5 @@
 #################################
-### Chromatinsight tools v1.7 ###
+### Chromatinsight tools v1.8 ###
 #################################
 #
 # A set of methods for R
@@ -21,6 +21,36 @@
 # sudo apt-get install libgit2-dev
 
 # methods
+
+#----------------------------------------------------------------------
+
+#' Generates a new table with an extra column displaying the FDR of the
+#' disparity.
+#' The input is two output tables from getRegionData:
+#' tableObserved: the table with the data including the result from the
+#' Chromatinsight analysis.
+#' tableRnd: the table with the same data, but randomising the category
+#' labels (in testPrediction, randomize = True).
+#' @export
+#' @examples
+#' newTable = addFDR(tableObserved, tableRnd)
+addFDR = function(regionDataObserved, regionDataRnd, verbose = TRUE) {
+	resultTable = regionDataObserved
+	resultTable$FDR = NA
+	for (i in 1:nrow(regionDataObserved)) {
+		if (i %% 100 == 0 & verbose) print(paste0(i, "/", nrow(regionDataObserved)))
+		thisDisparity = regionDataObserved$disparity[i]
+		totObserved = nrow(subset(regionDataObserved, disparity >= thisDisparity))
+		totRnd = nrow(subset(regionDataRnd, disparity >= thisDisparity))
+		# The following is the same as FP / (FP + TP)
+		# Because totRND only shows false positives, but totObs includes both
+		thisRnd = totRnd / totObserved
+		resultTable$FDR[i] = thisRnd
+		}
+	
+	return(resultTable)
+	
+	}
 
 #----------------------------------------------------------------------
 
