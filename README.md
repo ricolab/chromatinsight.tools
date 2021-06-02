@@ -3,13 +3,63 @@ R tools for Chromatinsight.
 
 A set of methods in R used in tandem with the output of Chromatinsight https://github.com/ricolab/Chromatinsight
 
-## Install:
+## Install
+
 from GitHub, using devtools:\
 ```devtools::github_install("chromatinsight.tools")```\
 If devtools is not installed, then\
 ```install.packages("devtools")```\
 You might need first:\
 ```sudo apt-get install libgit2-dev```
+
+## Basic usage
+
+You can test some of the features using the following simple example (the files in the input folder are the same as those in the output folder of Chromatinsight's unit test). The output file should be identical to the file in ```./utest/output_expected/dimorphismMono_output.txt``` . Note that this code assumes connection to the server of Ensembl).
+
+```
+library(chromatinsight.tools)
+library(biomaRt)
+
+myInputFolder = "./utest/input"
+myOutputFolder = "./utest/output"
+
+gene_types = as.data.frame(read.table(header = TRUE, text = "
+gene_type
+3prime_overlapping_ncrna
+antisense
+lincRNA
+miRNA
+misc_RNA
+processed_transcript
+protein_coding
+pseudogene
+rRNA
+sense_intronic
+sense_overlapping
+snoRNA
+snRNA
+"))
+
+ensembl75 = useMart(host='feb2014.archive.ensembl.org',
+						biomart='ENSEMBL_MART_ENSEMBL',
+						dataset='hsapiens_gene_ensembl')
+						
+allBioMartChr = getBM(mart = ensembl75, attributes = c("ensembl_gene_id", "wikigene_name", "chromosome_name", "start_position", "end_position", "gene_biotype"))
+
+# Loading both Chromatinsight outputs (observed and random)
+dimorphismMono = getRegionData(myInputFolder, prefix = "mono", suffix = "real", totRandomStates = 11)
+dimorphismMonoRnd = getRegionData(myInputFolder, prefix = "mono", suffix = "rnd", totRandomStates = 11)
+
+# Calculating FDR
+dimorphismMonoFdr = addFDR(dimorphismMono, dimorphismMonoRnd)
+
+# Adding information from BioMart
+dimorphismMonoMore = fillTableWithGeneTypes(dimorphismMonoFdr, allBioMartChr, gene_types)
+
+# Saving output
+setwd(myOutputFolder)
+write.table(dimorphismMonoMore, "dimorphismMono_output.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+```
 
 ## Main methods
 
