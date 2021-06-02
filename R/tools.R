@@ -1,5 +1,5 @@
 #################################
-### Chromatinsight tools v1.8 ###
+### Chromatinsight tools v1.9 ###
 #################################
 #
 # A set of methods for R
@@ -352,6 +352,65 @@ compareDistributions = function(regionData1, regionData2, label1 = "first", labe
 	
 	}
 
+#----------------------------------------------------------------------
+
+#' Adds two columns with data from Chromatinsight (loaded using getRegionData)
+#' to a table containing connected regions from Hi-C experiments.
+#' @export
+#' @examples
+#' dimorphismMono = getRegionData(folderPath, prefix = "mono", totRandomStates = 5)
+#' HiCDataIncludingDimorphism = addDimorphism(data = HiCData, dimorphismData = dimorphismMono)
+addDimorphism = function(data, dimorphismData, suffix = "", overwrite = FALSE, counterstep = 0, sourceColumn = "disparity") {
+	
+	endElements = c("bait", "oe")
+	totCols = ncol(data)
+	
+	baitDimorphismCol = paste0("baitDimorphism", suffix)
+	oeDimorphismCol = paste0("oeDimorphism", suffix)	
+	
+	if ((baitDimorphismCol %in% colnames(data) | oeDimorphismCol %in% colnames(data)) & !overwrite) {
+		print(paste0("error: columns with suffix '", suffix, "' already exists, to overwrite, please use overwrite = TRUE'"))
+		return(data)
+		}
+		
+	data[, baitDimorphismCol] = -1
+	data[, oeDimorphismCol] = -1
+	
+	counter = 0
+	totRows = nrow(data)
+	for(i in 1:nrow(data)) {
+		counter = counter + 1
+		if (counter %% 1000 == 0 & counterstep > 0) print(paste0("Calculating row #", counter, "/", totRows, " for ", suffix, "..."))
+		for (thisPart in endElements) {
+			thisDimorphismCol = paste0(thisPart, sourceColumn, suffix)
+			thisChr = paste0(thisPart, "Chr")
+			thisStart = paste0(thisPart, "Start")
+			thisEnd = paste0(thisPart, "End")
+			myChrom = paste0("chr", data[i, thisChr])
+			myStart = data[i, thisStart]
+			myEnd = data[i, thisEnd]
+			
+			segmentsIncludingElement = subset(dimorphismData,
+									chrom == myChrom & (
+									(init <= myStart & end >= myStart) | # it starts within the segment
+									(init <= myEnd & end >= myEnd) | # or it finishes within the segment
+									(init > myStart & end < myEnd) # or the HiCfragment contains the segment
+									)
+								)
+			thisDimorphism = max(segmentsIncludingElement[, sourceColumn])
+			data[i, thisDimorphismCol] = thisDimorphism
+			
+			#if (segmentList != 1 & segmentList != 2) {
+			#	print(paste0("part: ", thisPart, ", chrom: ", myChrom, ", start = ", myStart, ", end = ", myEnd, " (", segmentList, ")"))
+			#	}
+			
+			}
+		}
+	
+	return(data)
+	
+	}
+	
 #----------------------------------------------------------------------
 
 #' Counts the gene types for each of the
