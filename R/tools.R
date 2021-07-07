@@ -1,6 +1,6 @@
-#################################
-### Chromatinsight tools v1.9 ###
-#################################
+##################################
+### Chromatinsight tools v1.10 ###
+##################################
 #
 # A set of methods for R
 # used in tandem with Chromatinsight
@@ -426,6 +426,118 @@ countGeneTypes = function(myGeneTypes, SDGeneTypes) {
 	return(result)
 }
 
+#----------------------------------------------------------------------
+
+#' Adds five columns to the region table, including additional ChIP-seq data
+#' for all windows and samples corresponding to a genomic region:
+#' 1) Ratio of windows that have the histone modification.
+#' 2) Average for sample group A.
+#' 3) Average for sample group B.
+#' 4) Relative ratio for sample group A.
+#' 5) Relative ratio for sample group B.
+#' @export
+#' @examples
+#' getHistModLevels(data,
+#'                   direc = "",
+#'                   histMod = "ac",
+#'                   prefixA = "mono*S*fem*NCMLS*",
+#'                   nameA = "fem",
+#'                   prefixB = "mono*S*mal*NCMLS*",
+#'                   nameB = "mal",
+#'                   suffix = "real",
+#'                   windowSize = 200,
+#'                   verbose = TRUE)
+getHistModLevels = function(data,
+							direc = "",
+							histMod = "ac",
+							prefixA = "",
+							nameA = "fem",
+							prefixB = "",
+							nameB = "mal",
+							suffix = "real",
+							windowSize = 200,
+							verbose = TRUE) {
+	
+	if (histMod == "ac") histMod = "H3K27ac"
+	if (histMod == "me" | histMod == "me1") histMod = "H3K4me1"
+	if (histMod != "me" & histMod != "me1" & histMod != "ac" & histMod != "H3K27ac" & histMod != "H3K4me1") {
+		print("Unknown histone modification, aborting.")
+		exit()
+		}
+	
+	myOutput = data
+	myOutput[with(myOutput, order(chrom, init)),] # just in case, but they should be sorted already
+	rownames(myOutput) = NULL
+	
+	col_modLevel = paste0("modLevel_", suffix)
+	col_avgA = paste0(nameA, "_avg_", suffix)
+	col_avgB = paste0(nameB, "_avg_", suffix)
+	col_relA = paste0(nameA, "_rel_", suffix)
+	col_relB = paste0(nameB, "_rel_", suffix)
+	
+	myOutput[col_modLevel] = NA
+	myOutput[col_avgA] = NA
+	myOutput[col_avgB] = NA
+	myOutput[col_relA] = NA
+	myOutput[col_relB] = NA
+	currentChr = ""
+	pileA = data.frame()
+	pileB = data.frame()
+	
+	for (i in 1:nrow(myOutput)) {
+		thisChr = as.character(myOutput[i, "chrom"])
+		if (thisChr != currentChr) {
+			currentChr = thisChr
+			print(paste0("Working on ", currentChr))
+			pileA = pileup(prefix = prefixA, direc = direc, chrom = currentChr)
+			pileB = pileup(prefix = prefixB, direc = direc, chrom = currentChr)
+			}
+		thisStart = as.numeric(myOutput[i, "init"])
+		thisEnd = as.numeric(myOutput[i, "end"])
+		
+		windowStart = floor(thisStart / windowSize)
+		windowEnd = ceiling(thisEnd / windowSize)
+		
+		# A couple of sanity checks
+		if (windowStart < 1) {
+			windowStart = 1
+			if (verbose) print("Warning: first window was 0, readjusted to 1.")
+			}
+		if (windowEnd > nrow(pileA)) {
+			windowEndOld = windowEnd
+			windowEnd = nrow(pileA)
+			if (verbose) print(paste0("Warning: last window was ", windowEndOld, ", readjusted to ", windowEnd, "(the maximum for ", thisChr, ")."))
+			}
+		if (windowEnd < windowStart) {
+			windowEndOld = windowEnd
+			windowEnd = windowStart
+			if (verbose) print(paste0("Warning: last window (", windewEndOld, ") was lower than first window (", windowEnd, "), readjusted to ", windowEnd, "."))
+			}
+		
+		avgA = sum(pileA[windowStart:windowEnd, histMod]) / (windowEnd - windowStart + 1)
+		avgB = sum(pileB[windowStart:windowEnd, histMod]) / (windowEnd - windowStart + 1)
+		
+		modLevel = (avgA + avgB) / 2
+		
+		relA = 0
+		relB = 0
+		
+		if (avgA >= 0 & avgB >= 0 & !(avgA == 0 & avgB == 0)) {
+			relA = avgA / (avgA + avgB)
+			relB = avgB / (avgA + avgB)
+			}
+		
+		myOutput[i, col_modLevel] = modLevel
+		myOutput[i, col_avgA] = avgA
+		myOutput[i, col_avgB] = avgB
+		myOutput[i, col_relA] = relA
+		myOutput[i, col_relB] = relB
+		
+		}
+	
+	return(myOutput)	
+	}
+	
 #----------------------------------------------------------------------
 
 gene_types = as.data.frame(read.table(header = TRUE, text = "
