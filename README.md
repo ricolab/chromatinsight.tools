@@ -6,7 +6,7 @@ A set of methods in R used in tandem with the output of Chromatinsight https://g
 ## Install
 
 from GitHub, using devtools:\
-```devtools::github_install("chromatinsight.tools")```\
+```devtools::install_github("ricolab/chromatinsight.tools")```\
 If devtools is not installed, then\
 ```install.packages("devtools")```\
 You might need first:\
