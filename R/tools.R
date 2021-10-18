@@ -218,7 +218,7 @@ drawpile = function(datafem,
 		}
 		
 	if (filename != ""){
-		ggplot2::ggsave(filename, plot = myPlot, width = filedim[1] / 600, height = filedim[2] / 600, units = "in", dpi = 600)
+		ggplot2::ggsave(filename, plot = myPlot, width = filedim[1] / 150, height = filedim[2] / 150, units = "in", dpi = 150)
 		}
 	else print(myPlot)
 	
@@ -284,7 +284,7 @@ densitypile = function(datafem, datamal,
         }
     
 	if (filename != ""){
-		ggplot2::ggsave(filename, plot = myPlot, width = filedim[1] / 600, height = filedim[2] / 600, units = "in", dpi = 600)
+		ggplot2::ggsave(filename, plot = myPlot, width = filedim[1] / 150, height = filedim[2] / 150, units = "in", dpi = 150)
 		}
 	else print(myPlot)
 	
