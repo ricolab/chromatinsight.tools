@@ -1,5 +1,5 @@
 ##################################
-### Chromatinsight tools v1.12 ###
+### Chromatinsight tools v1.13 ###
 ##################################
 #
 # A set of methods for R
@@ -218,11 +218,9 @@ drawpile = function(datafem,
 		}
 		
 	if (filename != ""){
-		png(file = filename, width = filedim[1], height = filedim[2])
-		print(myPlot)
-		dev.off()
+		ggplot2::ggsave(filename, plot = myPlot, width = filedim[1] / 300, height = filedim[2] / 300, units = "in", dpi = 300)
 		}
-	else myPlot
+	else print(myPlot)
 	
 	}
     
@@ -286,11 +284,9 @@ densitypile = function(datafem, datamal,
         }
     
 	if (filename != ""){
-		png(file = filename, width = filedim[1], height = filedim[2])
-		print(myPlot)
-		dev.off()
+		ggplot2::ggsave(filename, plot = myPlot, width = filedim[1] / 300, height = filedim[2] / 300, units = "in", dpi = 300)
 		}
-	else myPlot
+	else print(myPlot)
 	
 	}
 
