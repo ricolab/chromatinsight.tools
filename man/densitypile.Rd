@@ -4,6 +4,7 @@
 \alias{densitypile}
 \title{You give it the output of two pileup function
 and it shows the graph comparing them.
+Include a filename parametre if you want to save the output into a file.
 For H3K27ac the first group is red, the second is blue,
 when they overlap it's purple.
 For H3K4me1 the first group is pink, the second is forest green,
@@ -22,12 +23,15 @@ densitypile(
   histmod = "ac",
   chrom = "",
   opacity = 0.5,
-  label = ""
+  label = "",
+  filename = "",
+  filedim = c(1800, 1000)
 )
 }
 \description{
 You give it the output of two pileup function
 and it shows the graph comparing them.
+Include a filename parametre if you want to save the output into a file.
 For H3K27ac the first group is red, the second is blue,
 when they overlap it's purple.
 For H3K4me1 the first group is pink, the second is forest green,

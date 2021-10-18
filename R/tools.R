@@ -1,5 +1,5 @@
 ##################################
-### Chromatinsight tools v1.10 ###
+### Chromatinsight tools v1.11 ###
 ##################################
 #
 # A set of methods for R
@@ -58,7 +58,20 @@ addFDR = function(regionDataObserved, regionDataRnd, verbose = TRUE) {
 #' (such as chrX:10,000-25,000)
 #' (See drawpile and densitypile for more details).
 #' @export
-drawpilegb = function(datafem, datamal, coord = "", plusminus = 1000, sex = "both", histmod = "ac", window = 200, useDensity = TRUE, opacity = 0.5, highlight = "", label = "") {
+drawpilegb = function(datafem,
+						datamal,
+						coord = "",
+						plusminus = 1000,
+						sex = "both",
+						histmod = "ac",
+						window = 200,
+						useDensity = TRUE,
+						opacity = 0.5,
+						highlight = "",
+						label = "",
+						filename = "",
+						filedim = c(1800, 1000)
+						) {
 
 	# note that datafem and datamal can only be part of a specific chromosome
 	# so the chromosome is ignored, make sure you have got the appropriate chromosome!
@@ -81,8 +94,8 @@ drawpilegb = function(datafem, datamal, coord = "", plusminus = 1000, sex = "bot
         highlightStart = floor(myHighlight$start / window)
         highlightPlus = ceiling(myHighlight$end / window) - highlightStart
         }
-	if (useDensity) densitypile(datafem, datamal, start = myStart, plus = myPlus, sex = sex, histmod = histmod, chrom = chrom, opacity = opacity, highstart = highlightStart, highplus = highlightPlus, label = label)
-    else drawpile(datafem, datamal, start = myStart, plus = myPlus, sex = sex, histmod = histmod, chrom = chrom)
+	if (useDensity) densitypile(datafem, datamal, start = myStart, plus = myPlus, sex = sex, histmod = histmod, chrom = chrom, opacity = opacity, highstart = highlightStart, highplus = highlightPlus, label = label, filename = filename, filedim = filedim)
+    else drawpile(datafem, datamal, start = myStart, plus = myPlus, sex = sex, histmod = histmod, chrom = chrom, filename = filename, filedim = filedim)
 }
 
 #----------------------------------------------------------------------
@@ -161,12 +174,22 @@ pileup = function(prefix = "", direc = "", chrom = ""){
 #' You give it the frequency of a histone mark at every ChromHMM bin,
 #' ie, the output of two pileup functions (see pileup).
 #' and draws the graph comparing them.
+#' Include a filename parametre if you want to save the output into a file.
 #' For H3K27ac the first group is red, the second is blue,
 #' For H3K4me1 the first group is pink, the second is forest green,
 #' To use UCSC Genome Browser coordinate format (such as chrX:10,000-25,000)
 #' see drawpilegb.
 #' @export
-drawpile = function(datafem, datamal, start = 0, plus = 1000, sex = "both", histmod = "ac", chrom = ""){
+drawpile = function(datafem,
+					datamal,
+					start = 0,
+					plus = 1000,
+					sex = "both",
+					histmod = "ac",
+					chrom = "",
+					filename = "",
+					filedim = c(1800, 1000)
+					){
 	
 	lineWidth = 1
 	binSize = 200
@@ -194,7 +217,12 @@ drawpile = function(datafem, datamal, start = 0, plus = 1000, sex = "both", hist
 		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_line(ggplot2::aes(y = H3K4me1, color = 'males, H3K2me1'), data = datamalpart, size = lineWidth)
 		}
 		
-	myPlot
+	if (filename != ""){
+		png(file = filename, width = filedim[1], height = filedim[2])
+		myPlot
+		dev.off()
+		}
+	else myPlot
 	
 	}
     
@@ -202,6 +230,7 @@ drawpile = function(datafem, datamal, start = 0, plus = 1000, sex = "both", hist
 
 #' You give it the output of two pileup function
 #' and it shows the graph comparing them.
+#' Include a filename parametre if you want to save the output into a file.
 #' For H3K27ac the first group is red, the second is blue,
 #' when they overlap it's purple.
 #' For H3K4me1 the first group is pink, the second is forest green,
@@ -216,7 +245,10 @@ densitypile = function(datafem, datamal,
                     histmod = "ac",
                     chrom = "",
                     opacity = 0.5,
-                    label = ""){
+                    label = "",
+					filename = "",
+					filedim = c(1800,1000)
+					){
 	
 	lineWidth = 0.25
 	binSize = 200
@@ -253,7 +285,12 @@ densitypile = function(datafem, datamal,
         myPlot <- myPlot + ggplot2::annotate("text", x = start * binSize, y = 0.9, label = label, family = "Ubuntu", size = 10, hjust = 0)
         }
     
-	myPlot
+	if (filename != ""){
+		png(file = filename, width = filedim[1], height = filedim[2])
+		myPlot
+		dev.off()
+		}
+	else myPlot
 	
 	}
 

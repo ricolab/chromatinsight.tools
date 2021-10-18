@@ -17,7 +17,9 @@ drawpilegb(
   useDensity = TRUE,
   opacity = 0.5,
   highlight = "",
-  label = ""
+  label = "",
+  filename = "",
+  filedim = c(1800, 1000)
 )
 }
 \description{
