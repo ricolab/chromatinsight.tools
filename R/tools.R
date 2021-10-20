@@ -1,5 +1,5 @@
 ##################################
-### Chromatinsight tools v1.15 ###
+### Chromatinsight tools v1.16 ###
 ##################################
 #
 # A set of methods for R
@@ -654,10 +654,10 @@ getmatrix = function(direc = "", pattern = "*", coord = "", start = 1, end = -1,
 		if (chromosome != "") columnNames = paste0(chromosome, ":", columnNames)
 		colnames(myRow) = columnNames
 		
-		goodNumbers = (min(myRow) == 0 & max(myRow) == 1)
+		goodNumbers = ((min(myRow) == 0 | min(myRow) == 1) & (max(myRow) == 0 | max(myRow) == 1))
 		
 		if (goodNumbers) myMatrix = rbind(myMatrix, myRow)
-		else print(paste0("Worning: File ", myFile, " excluded."))
+		else print(paste0("Warning: File ", myFile, " excluded [min: ", min(myRow), ", max: ", max(myRow), "]."))
 		}
 		
 	return(myMatrix)
