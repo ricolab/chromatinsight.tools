@@ -1,5 +1,5 @@
 ##################################
-### Chromatinsight tools v1.14 ###
+### Chromatinsight tools v1.15 ###
 ##################################
 #
 # A set of methods for R
@@ -174,7 +174,7 @@ pileup = function(prefix = "", direc = "", chrom = ""){
 #' You give it the frequency of a histone mark at every ChromHMM bin,
 #' ie, the output of two pileup functions (see pileup).
 #' and draws the graph comparing them.
-#' Include a filename parametre if you want to save the output into a file.
+#' Include a filename parameter if you want to save the output into a file.
 #' For H3K27ac the first group is red, the second is blue,
 #' For H3K4me1 the first group is pink, the second is forest green,
 #' To use UCSC Genome Browser coordinate format (such as chrX:10,000-25,000)
@@ -228,7 +228,7 @@ drawpile = function(datafem,
 
 #' You give it the output of two pileup function
 #' and it shows the graph comparing them.
-#' Include a filename parametre if you want to save the output into a file.
+#' Include a filename parameter if you want to save the output into a file.
 #' For H3K27ac the first group is red, the second is blue,
 #' when they overlap it's purple.
 #' For H3K4me1 the first group is pink, the second is forest green,
@@ -571,6 +571,99 @@ getHistModLevels = function(data,
 	return(myOutput)	
 	}
 	
+#----------------------------------------------------------------------
+
+#' Calculates the heatmap of a set of ChromHMM output binary files.
+#' Parameters:
+#'   pattern: to select the files from the filename. Asterisks (*) as wildcard.
+#'   coord: the coordinates of the region to extract, such as
+#'          chrX:73,040,484-73,072,558 (this parameter is mandatory)
+#'   histmod: the name of the column from which extract the data, such as the
+#'          histone mark. Default is "H3K27ac".
+#'   windowsize: the number of bases in each ChromHMM window. Default is 200.
+#'   direc: directory or folder where the data are (omit to use the working
+#'          directory).
+#'   filename: the filename to save a 1800x1000 px image with the heatmap. If
+#'           omitted, it will just show it in the plot area.
+#' @export
+#' @examples
+#' getheatmap(pattern = "mono*",
+#'            coord = "chrX:130,822,807-130,964,890",
+#'            histmod = "H3K4me1",
+#'            filename = "C:/data/Firre_reduced_me.png")
+getheatmap = function(pattern = "*", coord = "", histmod = "H3K27ac", windowsize = 200, filename = "", direc = "") {
+	
+	if (coord == "") {
+		print("Genomic coordinates, such as chrX:73,040,484-73,072,558, are mandatory")
+		exit()
+		}
+	
+	myMatrix = getmatrix(direc = direc, pattern = pattern, histmod = histmod, coord = coord, windowsize = windowsize)
+	
+	if (filename != "") {
+		dev.new()
+		png(filename, width = 1800, height = 1000)
+		heatmap(data.matrix(myMatrix), Colv = NA, scale = "none", col = c("#fff0c0", "#a04040"))
+		graphics.off()
+		}
+	else heatmap(data.matrix(myMatrix), Colv = NA, scale = "none", col = c("#fff0c0", "#a04040"))
+	
+	}
+	
+#----------------------------------------------------------------------
+
+#' Extracts the matrix of histone modifications to be used to
+#' represent the heatmap.
+getmatrix = function(direc = "", pattern = "*", coord = "", start = 1, end = -1, histmod = "H3K27ac", windowsize = 200, chromosome = ""){
+	
+	if (tolower(histmod) == "ac") histmod = "H3K27ac"
+	if (tolower(histmod) == "me" | tolower(histmod) == "me1") histmod = "H3K4me1"
+	
+	# note that coord overrides start, end and chromosome
+	if (coord != "") {
+		myCoord = splitCoords(coord)
+		start = floor(myCoord$start / windowsize)
+		end = ceiling(myCoord$end / windowsize)
+		chromosome = myCoord$chrom
+		}
+	
+	myDirec = direc
+	if (nchar(myDirec) > 0) {
+		if (substr(myDirec, nchar(myDirec), nchar(myDirec)) != "/") {
+			myDirec = paste0(myDirec, "/")
+			}
+		}
+	myFilePath = paste0(myDirec, pattern) # the pattern of the *_binary.txt files
+	print(myFilePath)
+	
+	myFiles = Sys.glob(myFilePath)
+	print(paste0("Checking ", length(myFiles), " files."))
+	
+	myMatrix = data.frame()
+	
+	total = 0
+	for (myFile in myFiles){
+		print(paste0("Loading: ", myFile))
+		myTable = read.table(myFile, sep = "\t", header = TRUE, skip = 1)
+		if (end == -1) thisEnd = nrow(myTable)
+		else thisEnd = end
+		myRow = t(myTable[start:thisEnd, histmod])
+		
+		rownames(myRow) = myFile
+		columnNames = format((start:thisEnd) * windowsize, big.mark = ",")
+		if (chromosome != "") columnNames = paste0(chromosome, ":", columnNames)
+		colnames(myRow) = columnNames
+		
+		goodNumbers = (min(myRow) == 0 & max(myRow) == 1)
+		
+		if (goodNumbers) myMatrix = rbind(myMatrix, myRow)
+		else print(paste0("Worning: File ", myFile, " excluded."))
+		}
+		
+	return(myMatrix)
+	
+	}
+
 #----------------------------------------------------------------------
 
 gene_types = as.data.frame(read.table(header = TRUE, text = "
