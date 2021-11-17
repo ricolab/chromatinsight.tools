@@ -3,11 +3,53 @@
 \name{fillTableWithGeneTypes}
 \alias{fillTableWithGeneTypes}
 \title{Merges the information from Biomart and the data from Chromatinsight,
-retrieved using getRegionData.}
+retrieved using getRegionData.
+To get data from BioMart, an option can be the following:
+library(BioMart)This applies a filter to get only data from chrX
+
+ensembl75 = useMart(host='feb2014.archive.ensembl.org',
+biomart='ENSEMBL_MART_ENSEMBL',
+dataset='hsapiens_gene_ensembl')
+chrX = getBM(mart = ensembl75,
+attributes = c("ensembl_gene_id",
+"chromosome_name",
+"start_position",
+"end_position",
+"gene_biotype"),
+filters = "chromosome_name",
+values = "X")This has no filters, so gets all the data
+
+allBioMartChr = getBM(mart = ensembl75,
+attributes = c("ensembl_gene_id",
+"wikigene_name",
+"chromosome_name",
+"start_position","end_position",
+"gene_biotype"))}
 \usage{
 fillTableWithGeneTypes(data, BioMartChr, SDGeneTypes)
 }
 \description{
 Merges the information from Biomart and the data from Chromatinsight,
 retrieved using getRegionData.
+To get data from BioMart, an option can be the following:
+library(BioMart)This applies a filter to get only data from chrX
+
+ensembl75 = useMart(host='feb2014.archive.ensembl.org',
+biomart='ENSEMBL_MART_ENSEMBL',
+dataset='hsapiens_gene_ensembl')
+chrX = getBM(mart = ensembl75,
+attributes = c("ensembl_gene_id",
+"chromosome_name",
+"start_position",
+"end_position",
+"gene_biotype"),
+filters = "chromosome_name",
+values = "X")This has no filters, so gets all the data
+
+allBioMartChr = getBM(mart = ensembl75,
+attributes = c("ensembl_gene_id",
+"wikigene_name",
+"chromosome_name",
+"start_position","end_position",
+"gene_biotype"))
 }

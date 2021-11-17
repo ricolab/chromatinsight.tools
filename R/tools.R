@@ -1,5 +1,5 @@
 ##################################
-### Chromatinsight tools v1.16 ###
+### Chromatinsight tools v1.17 ###
 ##################################
 #
 # A set of methods for R
@@ -117,6 +117,63 @@ splitCoords = function(coords = "") {
 
 #----------------------------------------------------------------------
 
+#' You give it a grouping file and key to find a set files of ChromHMM binaries
+#' and it adds up the "ones" and "zeroes" that are at the same position for the
+#' set of files, dividing by the number of files.
+#' So it gives the ratio of samples having a "one" at a specific position
+#' ie, the ratio of samples being H3K27ac or H3K4me1 at a ChromHMM bin.
+#' If the parameter "key" is omitted, then all the files will be used.
+#' @export
+#' @example
+#' pileup(grouping = "grouping_file.txt", key = "mal", chrom = "chr10")
+pileup = function(grouping = "", key = "", direc = "", chrom = ""){
+	
+	myChromosome = chrom
+	if (nchar(myChromosome) < 4) myChromosome = paste0("chr", myChromosome)
+	
+	myDirec = direc
+	if (nchar(myDirec) > 0) {
+		if (substr(myDirec, nchar(myDirec), nchar(myDirec)) != "/") {
+			myDirec = paste0(myDirec, "/")
+			}
+		}
+	groupingFile = paste0(myDirec, grouping)
+	groupingTable = as.data.frame(read.table(groupingFile, sep = "\t", header = FALSE))
+	colnames(groupingTable) = c("filename", "tablekey")
+	
+	myFiles = groupingTable[,"filename"]
+	if (key != "") myFiles = subset(groupingTable, tablekey == key)[,"filename"]
+	
+	print(paste0("Checking ", length(myFiles), " files."))
+	
+	myList = c()
+	total = 0
+	for (myFile in myFiles){
+		myFileChr = gsub("\\*", chrom, myFile)
+		myTable = read.table(myFileChr, sep = "\t", header = TRUE, skip = 1)
+		print(paste0(nrow(myTable), ", ", length(myTable), ": ", myFileChr))
+		if(max(myTable) <= 1 & length(myTable) == 2){
+			total = total + 1
+			if (length(myList) == 0){
+					myList = myTable
+				} else {
+					myList = myList + myTable
+				}
+		} else {
+			print("Discarded.")
+			}
+		}
+	
+	resultList = myList / total
+	
+	return(resultList)
+	
+	}
+
+#----------------------------------------------------------------------
+
+#' Deprecated version of pileup that was using as a reference the file name
+#' rather than the grouping file.
 #' You give it the filename prefix to find a set files of ChromHMM binaries
 #' and it adds up the "ones" and "zeroes" that are at the same position for the
 #' set of files, dividing by the number of files.
@@ -124,13 +181,13 @@ splitCoords = function(coords = "") {
 #' ie, the ratio of samples being H3K27ac or H3K4me1 at a ChromHMM bin.
 #' @export
 #' @examples
-#' pileup(prefix = "mono*S*mal", direc = "/data/", chrom = "chr10")
+#' pileup2(prefix = "mono*S*mal", direc = "/data/", chrom = "chr10")
 #' Will merge data from files (within /data folder)
 #' monocytes_S2901_mal_DATA_binary.txt
 #' monocytes_S3454_mal_DATA_binary.txt
 #' monocytes_S5715_mal_DATA_binary.txt
 #' etc
-pileup = function(prefix = "", direc = "", chrom = ""){
+pileup2 = function(prefix = "", direc = "", chrom = ""){
 	
 	myChromosome = chrom
 	if (nchar(myChromosome) < 4) myChromosome = paste0("chr", myChromosome)
@@ -333,6 +390,27 @@ getRegionData = function(myPath = "", histmod = "ac", prefix = "prefix", suffix 
 
 #' Merges the information from Biomart and the data from Chromatinsight,
 #' retrieved using getRegionData.
+#' To get data from BioMart, an option can be the following:
+#' library(BioMart)
+#' # This applies a filter to get only data from chrX
+#' ensembl75 = useMart(host='feb2014.archive.ensembl.org',
+#' 						biomart='ENSEMBL_MART_ENSEMBL',
+#' 						dataset='hsapiens_gene_ensembl')
+#' chrX = getBM(mart = ensembl75,
+#' 			attributes = c("ensembl_gene_id",
+#' 						"chromosome_name",
+#' 						"start_position",
+#' 						"end_position",
+#' 						"gene_biotype"),
+#' 			filters = "chromosome_name",
+#' 			values = "X")
+#' # This has no filters, so gets all the data
+#' allBioMartChr = getBM(mart = ensembl75,
+#' 					attributes = c("ensembl_gene_id",
+#' 					"wikigene_name",
+#' 					"chromosome_name",
+#' 					"start_position","end_position",
+#' 					"gene_biotype"))
 #' @export
 fillTableWithGeneTypes = function(data, BioMartChr, SDGeneTypes) {
 geneTypeColumns = data.frame()
@@ -461,6 +539,8 @@ countGeneTypes = function(myGeneTypes, SDGeneTypes) {
 
 #----------------------------------------------------------------------
 
+#' Deprecated version of the function getHistModLevels that was using the file
+#' name rather than the grouping file.
 #' Adds five columns to the region table, including additional ChIP-seq data
 #' for all windows and samples corresponding to a genomic region:
 #' 1) Ratio of windows that have the histone modification.
@@ -470,7 +550,7 @@ countGeneTypes = function(myGeneTypes, SDGeneTypes) {
 #' 5) Relative ratio for sample group B.
 #' @export
 #' @examples
-#' getHistModLevels(data,
+#' getHistModLevels2(data,
 #'                   direc = "",
 #'                   histMod = "ac",
 #'                   prefixA = "mono*S*fem*NCMLS*",
@@ -480,7 +560,7 @@ countGeneTypes = function(myGeneTypes, SDGeneTypes) {
 #'                   suffix = "real",
 #'                   windowSize = 200,
 #'                   verbose = TRUE)
-getHistModLevels = function(data,
+getHistModLevels2 = function(data,
 							direc = "",
 							histMod = "ac",
 							prefixA = "",
@@ -522,8 +602,8 @@ getHistModLevels = function(data,
 		if (thisChr != currentChr) {
 			currentChr = thisChr
 			print(paste0("Working on ", currentChr))
-			pileA = pileup(prefix = prefixA, direc = direc, chrom = currentChr)
-			pileB = pileup(prefix = prefixB, direc = direc, chrom = currentChr)
+			pileA = pileup2(prefix = prefixA, direc = direc, chrom = currentChr)
+			pileB = pileup2(prefix = prefixB, direc = direc, chrom = currentChr)
 			}
 		thisStart = as.numeric(myOutput[i, "init"])
 		thisEnd = as.numeric(myOutput[i, "end"])
@@ -575,7 +655,9 @@ getHistModLevels = function(data,
 
 #' Calculates the heatmap of a set of ChromHMM output binary files.
 #' Parameters:
-#'   pattern: to select the files from the filename. Asterisks (*) as wildcard.
+#'   grouping: the grouping file that indicates the files to be considered.
+#'   key: the key in the grouping file to filter the files to be considered
+#'          (omit to use all the files).
 #'   coord: the coordinates of the region to extract, such as
 #'          chrX:73,040,484-73,072,558 (this parameter is mandatory)
 #'   histmod: the name of the column from which extract the data, such as the
@@ -587,18 +669,19 @@ getHistModLevels = function(data,
 #'           omitted, it will just show it in the plot area.
 #' @export
 #' @examples
-#' getheatmap(pattern = "mono*",
+#' getheatmap2(grouping = "grouping_file.txt",
+#'            key = "fem",
 #'            coord = "chrX:130,822,807-130,964,890",
 #'            histmod = "H3K4me1",
 #'            filename = "C:/data/Firre_reduced_me.png")
-getheatmap = function(pattern = "*", coord = "", histmod = "H3K27ac", windowsize = 200, filename = "", direc = "") {
+getheatmap = function(grouping, key = "", coord = "", histmod = "H3K27ac", windowsize = 200, filename = "", direc = "") {
 	
 	if (coord == "") {
 		print("Genomic coordinates, such as chrX:73,040,484-73,072,558, are mandatory")
 		exit()
 		}
 	
-	myMatrix = getmatrix(direc = direc, pattern = pattern, histmod = histmod, coord = coord, windowsize = windowsize)
+	myMatrix = getmatrix(grouping = grouping, key = key, histmod = histmod, coord = coord, windowsize = windowsize, direc = direc)
 	
 	if (filename != "") {
 		dev.new()
@@ -614,7 +697,118 @@ getheatmap = function(pattern = "*", coord = "", histmod = "H3K27ac", windowsize
 
 #' Extracts the matrix of histone modifications to be used to
 #' represent the heatmap.
-getmatrix = function(direc = "", pattern = "*", coord = "", start = 1, end = -1, histmod = "H3K27ac", windowsize = 200, chromosome = ""){
+getmatrix = function(grouping, key = "", coord = "", start = 1, end = -1, histmod = "H3K27ac", windowsize = 200, chromosome = "", direc = ""){
+	
+	if (tolower(histmod) == "ac") histmod = "H3K27ac"
+	if (tolower(histmod) == "me" | tolower(histmod) == "me1") histmod = "H3K4me1"
+	
+	# note that coord overrides start, end and chromosome
+	if (coord != "") {
+		myCoord = splitCoords(coord)
+		start = floor(myCoord$start / windowsize)
+		end = ceiling(myCoord$end / windowsize)
+		chromosome = myCoord$chrom
+		}
+	
+	myDirec = direc
+	if (nchar(myDirec) > 0) {
+		if (substr(myDirec, nchar(myDirec), nchar(myDirec)) != "/") {
+			myDirec = paste0(myDirec, "/")
+			}
+		}
+	
+	groupingFile = paste0(myDirec, grouping)
+	groupingTable = as.data.frame(read.table(groupingFile, sep = "\t", header = FALSE))
+	colnames(groupingTable) = c("filename", "tablekey")
+	
+	myFiles = groupingTable[,"filename"]
+	myKeys = groupingTable[,"tablekey"]
+	if (key != "") {
+		myFiles = subset(groupingTable, tablekey == key)[,"filename"]
+		myKeys = subset(groupingTable, tablekey == key)[,"tablekey"]
+		}
+	
+	print(paste0("Checking ", length(myFiles), " files."))
+	
+	myMatrix = data.frame()
+	newKeys = data.frame()
+	
+	total = 0
+	for (i in 1:length(myFiles)){
+		myFile = myFiles[i]
+		myFileChr = gsub("\\*", chromosome, myFile)
+		print(paste0("Loading: ", myFileChr))
+		myTable = read.table(myFileChr, sep = "\t", header = TRUE, skip = 1)
+		if (end == -1) thisEnd = nrow(myTable)
+		else thisEnd = end
+		myRow = t(myTable[start:thisEnd, histmod])
+		rownames(myRow) = paste0(myKeys[i], ":", myFileChr)
+		columnNames = format((start:thisEnd) * windowsize, big.mark = ",")
+		if (chromosome != "") columnNames = paste0(chromosome, ":", columnNames)
+		colnames(myRow) = columnNames
+		
+		goodNumbers = ((min(myRow) == 0 | min(myRow) == 1) & (max(myRow) == 0 | max(myRow) == 1))
+		
+		if (goodNumbers) {
+			myMatrix = rbind(myMatrix, myRow)
+			newKeys = rbind(newKeys, myKeys[i])
+			}
+		else print(paste0("Warning: File ", myFileChr, " excluded [min: ", min(myRow), ", max: ", max(myRow), "]."))
+		}
+	
+	# myKeys is not being returned for now
+	return(myMatrix)
+	
+	}
+	
+#----------------------------------------------------------------------
+
+#' Deprecated version of getheatmap that uses the pattern of the filename
+#' rather than the grouping file.
+#' Calculates the heatmap of a set of ChromHMM output binary files.
+#' Parameters:
+#'   pattern: to select the files from the filename. Asterisks (*) as wildcard.
+#'   coord: the coordinates of the region to extract, such as
+#'          chrX:73,040,484-73,072,558 (this parameter is mandatory)
+#'   histmod: the name of the column from which extract the data, such as the
+#'          histone mark. Default is "H3K27ac".
+#'   windowsize: the number of bases in each ChromHMM window. Default is 200.
+#'   direc: directory or folder where the data are (omit to use the working
+#'          directory).
+#'   filename: the filename to save a 1800x1000 px image with the heatmap. If
+#'           omitted, it will just show it in the plot area.
+#' @export
+#' @examples
+#' getheatmap2(pattern = "mono*",
+#'            coord = "chrX:130,822,807-130,964,890",
+#'            histmod = "H3K4me1",
+#'            filename = "C:/data/Firre_reduced_me.png")
+getheatmap2 = function(pattern = "*", coord = "", histmod = "H3K27ac", windowsize = 200, filename = "", direc = "") {
+	
+	if (coord == "") {
+		print("Genomic coordinates, such as chrX:73,040,484-73,072,558, are mandatory")
+		exit()
+		}
+	
+	myMatrix = getmatrix2(direc = direc, pattern = pattern, histmod = histmod, coord = coord, windowsize = windowsize)
+	
+	if (filename != "") {
+		dev.new()
+		png(filename, width = 1800, height = 1000)
+		heatmap(data.matrix(myMatrix), Colv = NA, scale = "none", col = c("#fff0c0", "#a04040"))
+		graphics.off()
+		}
+	else heatmap(data.matrix(myMatrix), Colv = NA, scale = "none", col = c("#fff0c0", "#a04040"))
+	
+	}
+	
+#----------------------------------------------------------------------
+
+#' Deprecated version of getmatrix that uses the pattern of the filename
+#' rather than the grouping file.
+#' Extracts the matrix of histone modifications to be used to
+#' represent the heatmap.
+getmatrix2 = function(direc = "", pattern = "*", coord = "", start = 1, end = -1, histmod = "H3K27ac", windowsize = 200, chromosome = ""){
 	
 	if (tolower(histmod) == "ac") histmod = "H3K27ac"
 	if (tolower(histmod) == "me" | tolower(histmod) == "me1") histmod = "H3K4me1"

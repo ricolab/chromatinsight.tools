@@ -6,14 +6,15 @@
 represent the heatmap.}
 \usage{
 getmatrix(
-  direc = "",
-  pattern = "*",
+  grouping,
+  key = "",
   coord = "",
   start = 1,
   end = -1,
   histmod = "H3K27ac",
   windowsize = 200,
-  chromosome = ""
+  chromosome = "",
+  direc = ""
 )
 }
 \description{
