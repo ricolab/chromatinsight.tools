@@ -4,7 +4,7 @@
 #' Author: Marco Trevisan-Herraz, PhD
 #' Computational Epigenomics Laboratory
 #' Newcastle University, UK
-#' 2019-2021
+#' 2019-2022
 #'
 #' Requires: ggplot2.
 #' 
@@ -15,6 +15,7 @@
 #' densityPile
 #' getRegionData
 #' fillTableWithGeneTypes
+#' compareDistributions
 #'
 #' @docType package
 #' @name chromatinsight.tools

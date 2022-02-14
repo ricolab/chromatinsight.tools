@@ -12,7 +12,9 @@ compareDistributions(
   label1 = "first",
   label2 = "second",
   yLabel = "data",
-  graphTitle = "comparison"
+  graphTitle = "comparison",
+  filename = "",
+  filedim = c(1200, 1200)
 )
 }
 \description{

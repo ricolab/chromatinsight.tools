@@ -1,5 +1,5 @@
 ##################################
-### Chromatinsight tools v1.17 ###
+### Chromatinsight tools v1.18 ###
 ##################################
 #
 # A set of methods for R
@@ -21,6 +21,39 @@
 # sudo apt-get install libgit2-dev
 
 # methods
+
+#----------------------------------------------------------------------
+
+#' Generates a new table with an extra column displaying the FDR of the
+#' disparity.
+#' The input is two output tables from getRegionData:
+#' tableObserved: the table with the data including the result from the
+#' Chromatinsight analysis.
+#' tableRnd: the table with the same data, but randomising the category
+#' labels (in testPrediction, randomize = True).
+#' @export
+#' @examples
+#' newTable = addFDR(tableObserved, tableRnd)
+addBayesFactor = function(regionDataObserved, hMark, dataRndFolder, dataRndPrefix, dataRndSuffix, totRandomStates = 11) {
+	dataRnd = getAllRandomStates(myPath = dataRndFolder, hMark, prefix = dataRndPrefix, suffix = dataRndSuffix, totRandomStates = totRandomStates)
+	resultTable = regionDataObserved
+	resultTable$BayesFactor = NA
+	
+	
+	for (i in 1:nrow(regionDataObserved)) {
+		if (i %% 100 == 0 & verbose) print(paste0(i, "/", nrow(regionDataObserved)))
+		thisDisparity = regionDataObserved$disparity[i]
+		totObserved = nrow(subset(regionDataObserved, disparity >= thisDisparity))
+		totRnd = nrow(subset(regionDataRnd, disparity >= thisDisparity))
+		# The following is the same as FP / (FP + TP)
+		# Because totRND only shows false positives, but totObs includes both
+		thisRnd = totRnd / totObserved
+		resultTable$FDR[i] = thisRnd
+		}
+	
+	return(resultTable)
+	
+	}
 
 #----------------------------------------------------------------------
 
@@ -349,6 +382,26 @@ densitypile = function(datafem, datamal,
 
 #----------------------------------------------------------------------
 
+#'
+#' @export
+getAllRandomStates = function(myPath = "", histmod = "ac", prefix = "prefix", suffix = "", totRandomStates = 11) {
+	
+	globalOutput = vector()
+	if (suffix != "") suffix = paste0("_", suffix)
+	myFiles = list.files(myPath, pattern = paste0(prefix, "_", histmod, "_chr[X0-9]{1,2}", suffix, ".txt"), full.names = TRUE)
+
+	allRandomStates = c()
+	for (i in 1:length(myFiles)) {
+		myData = as.data.frame(read.csv(myFiles[i], header = FALSE, sep = "\t", skip = 1))
+		randomStates = unlist(myData)
+		allRandomStates = c(allRandomStates, randomStates)
+		}
+	
+	return(allRandomStates)
+}
+
+#----------------------------------------------------------------------
+
 #' Loads the output text files of Chromatinsight (currently Python only),
 #' Using as output the median of the number of trials porformed (in the
 #' totRandomStates variable).
@@ -443,7 +496,14 @@ for (i in 1:nrow(data)) {
 #' retrieved using getRegionData. Especially useful to compare random vs
 #' observed data.
 #' @export
-compareDistributions = function(regionData1, regionData2, label1 = "first", label2 = "second", yLabel = "data", graphTitle = "comparison") {
+compareDistributions = function(regionData1,
+								regionData2,
+								label1 = "first",
+								label2 = "second",
+								yLabel = "data",
+								graphTitle = "comparison",
+								filename = "",
+								filedim = c(1200, 1200)) {
 
 	myFirst = as.data.frame(c(first = regionData1$disparity))
 	myFirst$id = label1
@@ -459,7 +519,8 @@ compareDistributions = function(regionData1, regionData2, label1 = "first", labe
 
 	vPlot_better = ggplot2::ggplot(mydf, ggplot2::aes(x = id, y = data, fill = id), ties = min) + ggplot2::geom_violin() + ggplot2::stat_summary(fun = median, geom = "point", shape = 20, size = 7, color = "red", fill = "red") + ggplot2::theme(axis.text = ggplot2::element_text(size = 14, face = "bold"), axis.title = ggplot2::element_text(size = 16, face = "bold"), plot.title = ggplot2::element_text(size = 20, face = "bold"), legend.position = "none") + ggplot2::ylab(yLabel) + ggplot2::coord_cartesian(ylim = c(0.3, 1)) + ggplot2::ggtitle(graphTitle)
 	
-	print(vPlot_better)
+	if (nchar(filename) > 0) ggplot2::ggsave(filename = filename, plot = vPlot_better, width = filedim[1] / 150, height = filedim[2] / 150, units = "in", dpi = 150)
+	else print(vPlot_better)
 	
 	}
 

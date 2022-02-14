@@ -1,16 +1,15 @@
 Package: chromatinsight.tools
-Title: What the Package Does (One Line, Title Case)
+Title: chromatinsight.tools
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Marco",
+           family = "Trevisan-Herraz",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+           email = "marco.trevisan@newcastle.ac.uk",
+           comment = c(ORCID = "0000-0002-7129-0602"))
+Description: Tools for Chromatinsight.
+License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

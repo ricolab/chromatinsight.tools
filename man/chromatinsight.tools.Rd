@@ -9,7 +9,7 @@ used in tandem with Chromatinsight.}
 Author: Marco Trevisan-Herraz, PhD
 Computational Epigenomics Laboratory
 Newcastle University, UK
-2019-2021
+2019-2022
 }
 \details{
 Requires: ggplot2.
@@ -22,5 +22,6 @@ drawpilegb
 densityPile
 getRegionData
 fillTableWithGeneTypes
+compareDistributions
 }
 
