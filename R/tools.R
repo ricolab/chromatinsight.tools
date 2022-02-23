@@ -1,5 +1,5 @@
 ##################################
-### Chromatinsight tools v1.19 ###
+### Chromatinsight tools v1.20 ###
 ##################################
 #
 # A set of methods for R
@@ -103,7 +103,9 @@ drawpilegb = function(data1,
 						highlight = "",
 						label = "",
 						filename = "",
-						filedim = c(1800, 1000)
+						filedim = c(1800, 1000),
+						label1 = "first",
+						label2 = "second"
 						) {
 
 	# note that data1 and data2 can only be part of a specific chromosome
@@ -127,8 +129,8 @@ drawpilegb = function(data1,
         highlightStart = floor(myHighlight$start / window)
         highlightPlus = ceiling(myHighlight$end / window) - highlightStart
         }
-	if (useDensity) densitypile(data1, data2, start = myStart, plus = myPlus, channel = channel, histmod = histmod, chrom = chrom, opacity = opacity, highstart = highlightStart, highplus = highlightPlus, label = label, filename = filename, filedim = filedim)
-    else drawpile(data1, data2, start = myStart, plus = myPlus, channel = channel, histmod = histmod, chrom = chrom, filename = filename, filedim = filedim)
+	if (useDensity) densitypile(data1, data2, start = myStart, plus = myPlus, channel = channel, histmod = histmod, chrom = chrom, opacity = opacity, highstart = highlightStart, highplus = highlightPlus, label = label, filename = filename, filedim = filedim, label1 = label1, label2 = label2)
+    else drawpile(data1, data2, start = myStart, plus = myPlus, channel = channel, histmod = histmod, chrom = chrom, filename = filename, filedim = filedim, label1 = label1, label2 = label2)
 }
 
 #----------------------------------------------------------------------

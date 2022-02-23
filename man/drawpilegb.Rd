@@ -19,7 +19,9 @@ drawpilegb(
   highlight = "",
   label = "",
   filename = "",
-  filedim = c(1800, 1000)
+  filedim = c(1800, 1000),
+  label1 = "first",
+  label2 = "second"
 )
 }
 \description{
