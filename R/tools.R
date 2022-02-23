@@ -1,5 +1,5 @@
 ##################################
-### Chromatinsight tools v1.18 ###
+### Chromatinsight tools v1.19 ###
 ##################################
 #
 # A set of methods for R
@@ -91,11 +91,11 @@ addFDR = function(regionDataObserved, regionDataRnd, verbose = TRUE) {
 #' (such as chrX:10,000-25,000)
 #' (See drawpile and densitypile for more details).
 #' @export
-drawpilegb = function(datafem,
-						datamal,
+drawpilegb = function(data1,
+						data2,
 						coord = "",
 						plusminus = 1000,
-						sex = "both",
+						channel = "both",
 						histmod = "ac",
 						window = 200,
 						useDensity = TRUE,
@@ -106,7 +106,7 @@ drawpilegb = function(datafem,
 						filedim = c(1800, 1000)
 						) {
 
-	# note that datafem and datamal can only be part of a specific chromosome
+	# note that data1 and data2 can only be part of a specific chromosome
 	# so the chromosome is ignored, make sure you have got the appropriate chromosome!
 	myCoord = splitCoords(coord)
 	print(myCoord)
@@ -127,8 +127,8 @@ drawpilegb = function(datafem,
         highlightStart = floor(myHighlight$start / window)
         highlightPlus = ceiling(myHighlight$end / window) - highlightStart
         }
-	if (useDensity) densitypile(datafem, datamal, start = myStart, plus = myPlus, sex = sex, histmod = histmod, chrom = chrom, opacity = opacity, highstart = highlightStart, highplus = highlightPlus, label = label, filename = filename, filedim = filedim)
-    else drawpile(datafem, datamal, start = myStart, plus = myPlus, sex = sex, histmod = histmod, chrom = chrom, filename = filename, filedim = filedim)
+	if (useDensity) densitypile(data1, data2, start = myStart, plus = myPlus, channel = channel, histmod = histmod, chrom = chrom, opacity = opacity, highstart = highlightStart, highplus = highlightPlus, label = label, filename = filename, filedim = filedim)
+    else drawpile(data1, data2, start = myStart, plus = myPlus, channel = channel, histmod = histmod, chrom = chrom, filename = filename, filedim = filedim)
 }
 
 #----------------------------------------------------------------------
@@ -270,41 +270,50 @@ pileup2 = function(prefix = "", direc = "", chrom = ""){
 #' To use UCSC Genome Browser coordinate format (such as chrX:10,000-25,000)
 #' see drawpilegb.
 #' @export
-drawpile = function(datafem,
-					datamal,
+drawpile = function(data1,
+					data2,
 					start = 0,
 					plus = 1000,
-					sex = "both",
+					channel = "both",
 					histmod = "ac",
 					chrom = "",
 					filename = "",
-					filedim = c(1800, 1000)
+					filedim = c(1800, 1000),
+					label1 = "first",
+					label2 = "second"
 					){
 	
 	lineWidth = 1
 	binSize = 200
 	
-	theEnd = nrow(datafem)
+	theEnd = nrow(data1)
 	end = start + plus
 	if (end < start) end = start + 1000
 	if (end > theEnd) end = theEnd
 	myTitle = paste0(chrom, ":", format(start * binSize, scientific = FALSE, big.mark = ","), "-", format(end * binSize, scientific = FALSE, big.mark = ","))
 	cat(myTitle)
 	
-	datafempart = datafem[start:end,]
-	datamalpart = datamal[start:end,]
+	data1part = data1[start:end,]
+	data2part = data2[start:end,]
 	
-	myPlot <- ggplot2::ggplot(ggplot2::aes(x = as.numeric(row.names(datafempart)), y = 0), data = datafempart) + ggplot2::geom_line() + ggplot2::ylim(0, 1) + ggplot2::scale_colour_manual(values = c("males, H3K27ac" = "blue", "females, H3K27ac" = "red",  "females, H3K4me1" = "purple", "males, H3K2me1" = "forest green"))
+	theseColors = c("red", "blue", "purple", "forest green")
+	color1ac = paste0(label1, ", H327ac")
+	color2ac = paste0(label2, ", H327ac")
+	color1me = paste0(label1, ", H3K4me1")
+	color2me = paste0(label2, ", H3K4me1")
+	names(theseColors) = c(color1ac, color2ac, color1me, color2me)
+	
+	myPlot <- ggplot2::ggplot(ggplot2::aes(x = as.numeric(row.names(data1part)), y = 0), data = data1part) + ggplot2::geom_line() + ggplot2::ylim(0, 1) + ggplot2::scale_colour_manual(values = theseColors)
 	myPlot <- myPlot + ggplot2::labs(title = myTitle) + ggplot2::xlab("bin in ChromHMM (1 bin = 200b)") + ggplot2::ylab("probability of histone modification")
 	
 	if (histmod == "ac" | histmod == "both"){
-		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_line(ggplot2::aes(y = H3K27ac, color = 'females, H3K27ac'), data = datafempart, size = lineWidth)
-		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_line(ggplot2::aes(y = H3K27ac, color = 'males, H3K27ac'), data = datamalpart, size = lineWidth)
+		if (channel == 1 | channel == "both") myPlot <- myPlot + ggplot2::geom_line(ggplot2::aes(y = H3K27ac, color = color1ac), data = data1part, size = lineWidth)
+		if (channel == 2 | channel == "both") myPlot <- myPlot + ggplot2::geom_line(ggplot2::aes(y = H3K27ac, color = color2ac), data = data2part, size = lineWidth)
 		}
 	
 	if (histmod == "me1" | histmod == "both"){
-		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_line(ggplot2::aes(y = H3K4me1, color = 'females, H3K4me1'), data = datafempart, size = lineWidth)
-		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_line(ggplot2::aes(y = H3K4me1, color = 'males, H3K2me1'), data = datamalpart, size = lineWidth)
+		if (channel == 1 | channel == "both") myPlot <- myPlot + ggplot2::geom_line(ggplot2::aes(y = H3K4me1, color = color1me), data = data1part, size = lineWidth)
+		if (channel == 2 | channel == "both") myPlot <- myPlot + ggplot2::geom_line(ggplot2::aes(y = H3K4me1, color = color2me), data = data2part, size = lineWidth)
 		}
 		
 	if (filename != ""){
@@ -326,32 +335,41 @@ drawpile = function(datafem,
 #' To use UCSC Genome Browser coordinate format (such as chrX:10,000-25,000)
 #' see drawpilegb.
 #' @export
-densitypile = function(datafem, datamal,
+densitypile = function(data1, data2,
                     start = 0, plus = 1000,
                     highstart = 0, highplus = 0,
-                    sex = "both",
+                    channel = "both", # can be 1 for data1, 2 for data2, or "both"
                     histmod = "ac",
                     chrom = "",
                     opacity = 0.5,
                     label = "",
 					filename = "",
-					filedim = c(1800,1000)
+					filedim = c(1800,1000),
+					label1 = "first",
+					label2 = "second"
 					){
 	
 	lineWidth = 0.25
 	binSize = 200
 	
-	theEnd = nrow(datafem)
+	theEnd = nrow(data2)
 	end = start + plus
 	if (end < start) end = start + 1000
 	if (end > theEnd) end = theEnd
 	myTitle = paste0(chrom, ":", format(start * binSize, scientific = FALSE, big.mark = ","), "-", format(end * binSize, scientific = FALSE, big.mark = ","))
 	print(myTitle)
 	
-	datafempart = datafem[start:end,]
-	datamalpart = datamal[start:end,]
+	data1part = data1[start:end,]
+	data2part = data2[start:end,]
 	
-	myPlot <- ggplot2::ggplot(ggplot2::aes(x = as.numeric(row.names(datafempart)) * binSize, y = 0), data = datafempart) + ggplot2::geom_line() + ggplot2::ylim(0, 1) + ggplot2::scale_fill_manual(values = c("males, H3K27ac" = "#0000ff", "females, H3K27ac" = "#ff0000",  "females, H3K4me1" = "purple", "males, H3K2me1" = "forest green"))
+	theseColors = c("red", "blue", "purple", "forest green")
+	color1ac = paste0(label1, ", H327ac")
+	color2ac = paste0(label2, ", H327ac")
+	color1me = paste0(label1, ", H3K4me1")
+	color2me = paste0(label2, ", H3K4me1")
+	names(theseColors) = c(color1ac, color2ac, color1me, color2me)
+	
+	myPlot <- ggplot2::ggplot(ggplot2::aes(x = as.numeric(row.names(data1part)) * binSize, y = 0), data = data1part) + ggplot2::geom_line() + ggplot2::ylim(0, 1) + ggplot2::scale_fill_manual(values = theseColors)
 	myPlot <- myPlot + ggplot2::labs(title = myTitle) + ggplot2::xlab("bins in ChromHMM (1 bin = 200b)") + ggplot2::ylab("probability of histone modification")
     myPlot <- myPlot + ggplot2::theme(panel.background = ggplot2::element_rect(fill="white", color = "grey50", size=2), panel.grid.major = ggplot2::element_line(color = "grey",size=(0.2)))
     
@@ -360,13 +378,13 @@ densitypile = function(datafem, datamal,
         }
 	
 	if (histmod == "ac" | histmod == "H3K27ac" | histmod == "both"){
-		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K27ac, fill = 'females, H3K27ac'), data = datafempart, size = lineWidth, stat = 'identity', alpha = opacity)
-		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K27ac, fill = 'males, H3K27ac'), data = datamalpart, size = lineWidth, stat = 'identity', alpha = opacity)
+		if (channel == 1 | channel == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K27ac, fill = color1ac), data = data1part, size = lineWidth, stat = 'identity', alpha = opacity)
+		if (channel == 2 | channel == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K27ac, fill = color2ac), data = data2part, size = lineWidth, stat = 'identity', alpha = opacity)
 		}
 	
 	if (histmod == "me1" | histmod == "me" | histmod == "H3K4me1" | histmod == "both"){
-		if (sex == "fem" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K4me1, fill = 'females, H3K4me1'), data = datafempart, size = lineWidth, stat = 'identity', alpha = opacity)
-		if (sex == "mal" | sex == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K4me1, fill = 'males, H3K2me1'), data = datamalpart, size = lineWidth, stat = 'identity', alpha = opacity)
+		if (channel == 1 | channel == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K4me1, fill = color1me), data = data1part, size = lineWidth, stat = 'identity', alpha = opacity)
+		if (channel == 2 | channel == "both") myPlot <- myPlot + ggplot2::geom_density(ggplot2::aes(y = H3K4me1, fill = color2me), data = data2part, size = lineWidth, stat = 'identity', alpha = opacity)
 		}
     
     if (nchar(label) > 0) {
@@ -625,9 +643,9 @@ getHistModLevels2 = function(data,
 							direc = "",
 							histMod = "ac",
 							prefixA = "",
-							nameA = "fem",
+							nameA = "1st",
 							prefixB = "",
-							nameB = "mal",
+							nameB = "2nd",
 							suffix = "real",
 							windowSize = 200,
 							verbose = TRUE) {

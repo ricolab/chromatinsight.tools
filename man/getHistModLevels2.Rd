@@ -19,9 +19,9 @@ getHistModLevels2(
   direc = "",
   histMod = "ac",
   prefixA = "",
-  nameA = "fem",
+  nameA = "1st",
   prefixB = "",
-  nameB = "mal",
+  nameB = "2nd",
   suffix = "real",
   windowSize = 200,
   verbose = TRUE

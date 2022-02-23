@@ -7,11 +7,11 @@
 (See drawpile and densitypile for more details).}
 \usage{
 drawpilegb(
-  datafem,
-  datamal,
+  data1,
+  data2,
   coord = "",
   plusminus = 1000,
-  sex = "both",
+  channel = "both",
   histmod = "ac",
   window = 200,
   useDensity = TRUE,

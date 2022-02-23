@@ -12,15 +12,17 @@ To use UCSC Genome Browser coordinate format (such as chrX:10,000-25,000)
 see drawpilegb.}
 \usage{
 drawpile(
-  datafem,
-  datamal,
+  data1,
+  data2,
   start = 0,
   plus = 1000,
-  sex = "both",
+  channel = "both",
   histmod = "ac",
   chrom = "",
   filename = "",
-  filedim = c(1800, 1000)
+  filedim = c(1800, 1000),
+  label1 = "first",
+  label2 = "second"
 )
 }
 \description{

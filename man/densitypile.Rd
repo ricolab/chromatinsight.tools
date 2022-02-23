@@ -13,19 +13,21 @@ To use UCSC Genome Browser coordinate format (such as chrX:10,000-25,000)
 see drawpilegb.}
 \usage{
 densitypile(
-  datafem,
-  datamal,
+  data1,
+  data2,
   start = 0,
   plus = 1000,
   highstart = 0,
   highplus = 0,
-  sex = "both",
+  channel = "both",
   histmod = "ac",
   chrom = "",
   opacity = 0.5,
   label = "",
   filename = "",
-  filedim = c(1800, 1000)
+  filedim = c(1800, 1000),
+  label1 = "first",
+  label2 = "second"
 )
 }
 \description{
