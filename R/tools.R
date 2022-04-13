@@ -1,5 +1,5 @@
 ##################################
-### Chromatinsight tools v1.20 ###
+### Chromatinsight tools v1.21 ###
 ##################################
 #
 # A set of methods for R
@@ -299,8 +299,8 @@ drawpile = function(data1,
 	data2part = data2[start:end,]
 	
 	theseColors = c("red", "blue", "purple", "forest green")
-	color1ac = paste0(label1, ", H327ac")
-	color2ac = paste0(label2, ", H327ac")
+	color1ac = paste0(label1, ", H3K27ac")
+	color2ac = paste0(label2, ", H3K27ac")
 	color1me = paste0(label1, ", H3K4me1")
 	color2me = paste0(label2, ", H3K4me1")
 	names(theseColors) = c(color1ac, color2ac, color1me, color2me)
@@ -365,8 +365,8 @@ densitypile = function(data1, data2,
 	data2part = data2[start:end,]
 	
 	theseColors = c("red", "blue", "purple", "forest green")
-	color1ac = paste0(label1, ", H327ac")
-	color2ac = paste0(label2, ", H327ac")
+	color1ac = paste0(label1, ", H3K27ac")
+	color2ac = paste0(label2, ", H3K27ac")
 	color1me = paste0(label1, ", H3K4me1")
 	color2me = paste0(label2, ", H3K4me1")
 	names(theseColors) = c(color1ac, color2ac, color1me, color2me)
