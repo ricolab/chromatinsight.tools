@@ -1,6 +1,6 @@
 Package: chromatinsight.tools
 Title: chromatinsight.tools
-Version: 0.0.0.9000
+Version: 1.2.1.0000
 Authors@R: 
     person(given = "Marco",
            family = "Trevisan-Herraz",
@@ -12,4 +12,4 @@ License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
