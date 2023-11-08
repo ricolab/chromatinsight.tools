@@ -75,10 +75,10 @@ Example:\
 ```newTable = addFDR(tableObserved, tableRnd)```
 
 **pileup**\
-You give it the filename prefix to find a set files of ChromHMM binaries and it adds up the "ones" and "zeroes" that are at the same position for the set of files, dividing by the number of files. So it gives the ratio of samples having a "one" at a specific position, ie, the ratio of samples being H3K27ac or H3K4me1 at a ChromHMM bin.\
+You give it a grouping file and key to find a set files of ChromHMM binaries and it adds up the "ones" and "zeroes" that are at the same position for the set of files, dividing by the number of files. So it gives the ratio of samples having a "one" at a specific position ie, the ratio of samples being H3K27ac or H3K4me1 at a ChromHMM bin. If the parameter "key" is omitted, then all the files will be used.\
 Example:\
-```pileup(prefix = "mono*S*mal", direc = "/data/", chrom = "chr10")```\
-Will merge data from files (within /data folder)\
+```dataMales = pileup(grouping = "grouping.txt", key = "male", direc = "/data", chrom = "chr10")```\
+Will merge data from the files classified as "male" in grouping.txt (within the /data folder), which in the example are:\
 ```monocytes_S2901_mal_DATA_binary.txt```\
 ```monocytes_S3454_mal_DATA_binary.txt```\
 ```monocytes_S5715_mal_DATA_binary.txt```\
